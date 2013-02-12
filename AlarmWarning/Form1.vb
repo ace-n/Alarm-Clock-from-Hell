@@ -6,7 +6,7 @@ Public Class txtMyPass
     Declare Function Sleep Lib "kernel32" (ByVal dwMilliseconds As Integer) As Integer
 
     Public Msg As String = "Set alarm!"
-    Public BlockCloses As Boolean = True ' If TRUE, window-closing requests are blocked
+    Public BlockCloses As Boolean = False ' If TRUE, window-closing requests are blocked
     Public HasBeenCloseMsgd As Boolean = False ' Allows the program to detect shutdown requests (because it will be requested to close for the first time)
 
     ' Password generator stuff
@@ -176,7 +176,7 @@ Public Class txtMyPass
     End Sub
 
     ' Hashing function
-    Private Function SimpleHash(ByVal Str As String) As Long
+    Private Function SimpleHash(ByVal Str As String) As String
 
         ' Modulo factor
         Dim HashFactor As Integer = 16983
@@ -188,13 +188,13 @@ Public Class txtMyPass
         Next
 
         ' Return hash
-        Return Hash
+        Return Hash & "/" & Str.Length
 
     End Function
 
     Private Sub myPassChanged() Handles txtMyPassword.TextChanged
 
-        If SimpleHash(txtMyPassword.Text) = 1663 Then
+        If SimpleHash(txtMyPassword.Text) = "1663/10" Then
 
             ' Disable
             txtMyPassword.Enabled = False
@@ -238,9 +238,11 @@ Public Class txtMyPass
 
         ' Sleep
         Console.WriteLine(SleepTime.TotalSeconds)
-        Sleep(SleepTime.TotalSeconds * 1000)
+        Sleep(Math.Max((SleepTime.TotalSeconds - 1), 0) * 1000)
 
         ' F*ck sh*t up
+        BlockCloses = True
+        Sleep(1000)
         My.Computer.Audio.Play(SoundPath, AudioPlayMode.BackgroundLoop)
 
     End Sub
