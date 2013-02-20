@@ -1,5 +1,8 @@
 ﻿Imports System.ComponentModel
 Imports System.Text.RegularExpressions
+Imports System.Text
+Imports System.Security.Cryptography
+Imports System.IO
 
 Public Class txtMyPass
 
@@ -20,9 +23,15 @@ Public Class txtMyPass
     Public Password3 As String = RandomString(Rand.Next(SizeInt, SizeInt + 5))
 
     ' Path of sound
-    Public SoundPath As String = "C:\Users\Ace\My Code\VB.NET\alarm_tone.wav"
+    Public SoundPath As String = Path.GetDirectoryName(Process.GetCurrentProcess.MainModule.FileName) & "\alarm_tone.wav"
 
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
+        ' Image verify
+        If Not File.Exists(SoundPath) Then
+            MsgBox("No alarm sound found at: " & SoundPath & "." & vbLf & vbLf & "Program will exit.")
+            Process.GetCurrentProcess.Kill()
+        End If
 
         ' Generate random passwords
         lblPass1.Text = "Password is " & Password1
@@ -189,6 +198,27 @@ Public Class txtMyPass
 
         ' Return hash
         Return Hash & "/" & Str.Length
+
+    End Function
+
+    ' [DBG - WIP] MD5 test
+    Private Function md5Hash(ByVal Str As String)
+
+        ' Code courtesy of http://www.a1vbcode.com/vbtip-149.asp
+
+        Dim Encoder As New UnicodeEncoding()
+
+        ' Get byte()
+        Dim strBytes As Byte() = Encoder.GetBytes(Str)
+
+        ' MD5 hashing object
+        Dim md5crypter As New MD5CryptoServiceProvider()
+
+        ' Calculate hash
+        Dim hashedBytes() As Byte = md5crypter.ComputeHash(strBytes)
+
+        ' Return hash as string
+        Return Convert.ToBase64String(hashedBytes)
 
     End Function
 
